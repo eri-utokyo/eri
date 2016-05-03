@@ -14,18 +14,16 @@ import re
 
 
 class ResNet(chainer.Chain):
-  def __init__(self, n=9):
+  def __init__(self, n=16):
     super(ResNet, self).__init__()
-    w = math.sqrt(2)
     self.L = 3 * n
+    w = math.sqrt(2)
     self.links = [('conv1', L.Convolution2D(3, 16, 3, 1, 1, w))]
     self.links += [('bn1', L.BatchNormalization(16))]
-    self.add_blocks(n, 16, 32)
+    self.add_blocks(2 * n, 16, 32)
     self.add_blocks(n, 32, 64)
-    self.add_blocks(n, 64, 128)
-    self.links += [('average_pool{}'.format(len(self.links)), F.AveragePooling2D(4, 1, 0, False, True))]
-    self.links += [('linear{}'.format(len(self.links)),
-      L.Linear(128, 10))]
+    self.links += [('average_pool{}'.format(len(self.links)), F.AveragePooling2D(8, 1, 0, False, True))]
+    self.links += [('linear{}'.format(len(self.links)), L.Linear(64, 10))]
     for link in self.links:
       if not link[0].startswith('average_pool'):
         self.add_link(*link)
