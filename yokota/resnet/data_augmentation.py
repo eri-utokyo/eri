@@ -39,28 +39,33 @@ def zoom_and_crop(X, Y, crop_size, stride, output_size):
 def flip(X, Y):
   x = np.vstack((X, X[:, :, :, ::-1]))
   y = np.hstack((Y, Y))
-  return x
+  return (x, y)
 
+if __name__ == '__main__':
+  (train_x, train_y), (test_x, test_y) = cifar10.load_data()
+  train_x = train_x.astype('float32')
+  train_y = train_y.astype('int32').reshape((-1,))
+  test_x = test_x.astype('float32')
+  test_y = test_y.astype('int32').reshape((-1,))
+  train_x /= 255
+  test_x /= 255
 
-(train_x, train_y), (test_x, test_y) = cifar10.load_data()
-train_x = train_x.astype('float32')
-train_y = train_y.astype('int32').reshape((-1,))
-test_x = test_x.astype('float32')
-test_y = test_y.astype('int32').reshape((-1,))
-train_x /= 255
-test_x /= 255
+  # [train] data augmentation
+  crop_size, stride = 24, 4
+  cropped_x, cropped_y = crop(train_x, train_y, crop_size, stride)
+  print cropped_x.shape, cropped_y.shape
+  crop_and_zoom_x, crop_and_zoom_y = zoom_and_crop(train_x, train_y, 28, 2, 24)
+  print crop_and_zoom_x.shape, crop_and_zoom_y.shape
+  train_x = np.vstack((cropped_x, crop_and_zoom_x))
+  train_y = np.hstack((cropped_y, crop_and_zoom_y))
+  print train_x.shape, train_y.shape
+  train_x, train_y = flip(train_x, train_y)
+  print train_x.shape, train_y.shape
 
-# [train] data augmentation
-crop_size, stride = 24, 2
-cropped_x, cropped_y = crop(train_x, train_y, crop_size, stride)
-print cropped_x.shape, cropped_y.shape
-crop_and_zoom_x, crop_and_zoom_y = zoom_and_crop(train_x, train_y, 28, 3, 24)
-print crop_and_zoom_x.shape, crop_and_zoom_y.shape
-train_x = np.vstack((cropped_x, crop_and_zoom_x))
-train_y = np.hstack((cropped_y, crop_and_zoom_y))
-print train_x.shape, train_y.shape
-train_x, train_y = flip(train_x, train_y)
-print train_x.shape, train_y.shape
+  # [test] center cropped
+  test_x, test_y = crop(test_x, test_y, crop_size, stride, True)
 
-# [test] center cropped
-test_x, test_y = crop(test_x, test_y, crop_size, stride, True)
+  np.save('data/train_x.npy', train_x)
+  np.save('data/train_y.npy', train_y)
+  np.save('data/test_x.npy', test_x)
+  np.save('data/test_y.npy', test_y)

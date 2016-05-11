@@ -11,32 +11,30 @@ import chainer
 from chainer import cuda, Variable, optimizers
 import chainer.functions as F
 import chainer.links as L
-from keras.datasets import cifar10 # 手抜き
 
-from res_net import ResNet
-from utils import crop, zoom_and_crop, flip
+from stochastic_depth_net import StochasticDepthNet
 
-logging.basicConfig(filename='cifar10_train.log', level=logging.DEBUG)
+date_format = "%Y-%m-%d_%H-%M-%S"
+logging.basicConfig(
+    filename='results/cifar10_train-{}.log'.format(time.strftime(date_format, time.localtime())),
+    level=logging.DEBUG)
 
-DEVICE1 = 2
+DEVICE1 = 0
 cuda.get_device(DEVICE1).use()
 
+train_x = np.load('data/train_x.npy')
+train_y = np.load('data/train_y.npy')
+test_x = np.load('data/test_x.npy')
+test_y = np.load('data/test_y.npy')
+
 BATCH_SIZE = 128
-NUM_TRAIN = 50000
-NUM_TEST = 10000
+NUM_TRAIN = train_x.shape[0]
+MAX_TRAIN = NUM_TRAIN / 10
+NUM_TEST = test_x.shape[0]
 NUM_EPOCH = 300
 
-(train_x, train_y), (test_x, test_y) = cifar10.load_data()
-train_x = train_x.astype('float32')
-train_y = train_y.astype('int32').reshape((-1,))
-test_x = test_x.astype('float32')
-test_y = test_y.astype('int32').reshape((-1,))
-train_x /= 255
-test_x /= 255
-
-
 cuda.check_cuda_available()
-model = ResNet()
+model = StochasticDepthNet()
 model.to_gpu(DEVICE1)
 
 optimizer = optimizers.Adam()
@@ -47,9 +45,7 @@ for epoch in range(1, NUM_EPOCH + 1):
   perm = np.random.permutation(NUM_TRAIN)
   sum_accuracy, sum_loss = 0, 0
   start = time.time()
-  for i in range(0, NUM_TRAIN, BATCH_SIZE):
-    # x = chainer.Variable(cp.asarray(train_x[perm[i:i + BATCH_SIZE]]), volatile='off')
-    # t = chainer.Variable(cp.asarray(train_y[perm[i:i + BATCH_SIZE]]), volatile='off')
+  for i in range(0, MAX_TRAIN, BATCH_SIZE):
     x = chainer.Variable(cuda.to_gpu(train_x[perm[i:i + BATCH_SIZE]], DEVICE1), volatile='off')
     t = chainer.Variable(cuda.to_gpu(train_y[perm[i:i + BATCH_SIZE]], DEVICE1), volatile='off')
 
@@ -60,15 +56,13 @@ for epoch in range(1, NUM_EPOCH + 1):
   end = time.time()
   elapsed_time = end - start
   throughput = NUM_TRAIN / elapsed_time
-  logging.info('[TRAIN]epoch%d: loss=%.4f, accuracy=%.4f, throughput=%.4f', epoch, sum_loss/NUM_TRAIN, sum_accuracy/NUM_TRAIN, throughput)
+  logging.info('[TRAIN]epoch%d: loss=%.4f, accuracy=%.4f, throughput=%.4f', epoch, sum_loss/MAX_TRAIN, sum_accuracy/MAX_TRAIN, throughput)
   sum_accuracy = 0
   sum_loss = 0
   for i in range(0, NUM_TEST, BATCH_SIZE):
-    # x = chainer.Variable(cp.asarray(test_x[i:i + BATCH_SIZE]), volatile='on')
-    # t = chainer.Variable(cp.asarray(test_y[i:i + BATCH_SIZE]), volatile='on')
     x = chainer.Variable(cuda.to_gpu(test_x[i:i + BATCH_SIZE], DEVICE1), volatile='on')
     t = chainer.Variable(cuda.to_gpu(test_y[i:i + BATCH_SIZE], DEVICE1), volatile='on')
     loss = model(x, t, False)
     sum_loss += float(model.loss.data) * len(t.data)
     sum_accuracy += float(model.accuracy.data) * len(t.data)
-  logging.info('[TEST]epoch%d: loss=%.4f, accuracy=%.4f', epoch, sum_loss/NUM_TRAIN, sum_accuracy/NUM_TRAIN)
+  logging.info('[TEST]epoch%d: loss=%.4f, accuracy=%.4f', epoch, sum_loss/NUM_TEST, sum_accuracy/NUM_TEST)

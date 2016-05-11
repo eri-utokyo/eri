@@ -11,7 +11,7 @@ import math
 import random
 
 
-class StochasticDepth(chainer.Chain):
+class StochasticDepthBlock(chainer.Chain):
   def __init__(self, n_in, n_out, k=3, p=1, pl=1.0, pL=0.5):
     self.pl = pl
     self.pL = pL
@@ -28,7 +28,6 @@ class StochasticDepth(chainer.Chain):
   def __call__(self, x, L, l, is_train=True):
     h = F.relu(self.bn1(self.conv1(x), test = not is_train))
     h = F.relu(self.bn2(self.conv2(h), test = not is_train))
-    # h = F.max_pooling_2d(h, 2, 2)
     P = 1.0 - l / L * (1 - self.pL)
     if is_train:
       P = 1.0 if random.random() < P else 0.0

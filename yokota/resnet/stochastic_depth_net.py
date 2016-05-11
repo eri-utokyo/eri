@@ -7,23 +7,24 @@ from chainer import cuda, Variable, optimizers
 import chainer.functions as F
 import chainer.links as L
 
-from stochastic_depth import StochasticDepth
+from stochastic_depth_block import StochasticDepthBlock
 
 import math
 import re
 
 
-class ResNet(chainer.Chain):
-  def __init__(self, n=16):
-    super(ResNet, self).__init__()
+class StochasticDepthNet(chainer.Chain):
+  def __init__(self, n=30):
+    super(StochasticDepthNet, self).__init__()
     self.L = 3 * n
     w = math.sqrt(2)
     self.links = [('conv1', L.Convolution2D(3, 16, 3, 1, 1, w))]
     self.links += [('bn1', L.BatchNormalization(16))]
-    self.add_blocks(2 * n, 16, 32)
+    self.add_blocks(n, 16, 32)
     self.add_blocks(n, 32, 64)
-    self.links += [('average_pool{}'.format(len(self.links)), F.AveragePooling2D(8, 1, 0, False, True))]
-    self.links += [('linear{}'.format(len(self.links)), L.Linear(64, 10))]
+    self.add_blocks(n, 64, 128)
+    self.links += [('average_pool{}'.format(len(self.links)), F.AveragePooling2D(3, 1, 0, False, True))]
+    self.links += [('linear{}'.format(len(self.links)), L.Linear(128, 10))]
     for link in self.links:
       if not link[0].startswith('average_pool'):
         self.add_link(*link)
@@ -33,10 +34,10 @@ class ResNet(chainer.Chain):
     for i in xrange(n):
       if i == n - 1:
         self.links += [('res{}__last'.format(len(self.links)),
-                        StochasticDepth(n_out if i > 0 else n_in, n_out))]
+                        StochasticDepthBlock(n_out if i > 0 else n_in, n_out))]
       else:
         self.links += [('res{}'.format(len(self.links)),
-                        StochasticDepth(n_out if i > 0 else n_in, n_out))]
+                        StochasticDepthBlock(n_out if i > 0 else n_in, n_out))]
 
   def clear(self):
     self.loss = None

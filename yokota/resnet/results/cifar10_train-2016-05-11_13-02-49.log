@@ -1,0 +1,28 @@
+INFO:root:[TRAIN]epoch1: loss=2.1022, accuracy=0.3966, throughput=1895.2359
+INFO:root:[TEST]epoch1: loss=2.2313, accuracy=0.5170
+INFO:root:[TRAIN]epoch2: loss=1.1665, accuracy=0.6065, throughput=1901.1973
+INFO:root:[TEST]epoch2: loss=0.9994, accuracy=0.6743
+INFO:root:[TRAIN]epoch3: loss=0.8502, accuracy=0.7146, throughput=1892.3392
+INFO:root:[TEST]epoch3: loss=1.1045, accuracy=0.7446
+INFO:root:[TRAIN]epoch4: loss=0.6939, accuracy=0.7660, throughput=1900.4215
+INFO:root:[TEST]epoch4: loss=0.5881, accuracy=0.7966
+INFO:root:[TRAIN]epoch5: loss=0.5634, accuracy=0.8058, throughput=1906.7239
+INFO:root:[TEST]epoch5: loss=0.5349, accuracy=0.8186
+INFO:root:[TRAIN]epoch6: loss=0.4922, accuracy=0.8299, throughput=1905.0428
+INFO:root:[TEST]epoch6: loss=0.5286, accuracy=0.8197
+INFO:root:[TRAIN]epoch7: loss=0.4328, accuracy=0.8513, throughput=1907.7910
+INFO:root:[TEST]epoch7: loss=0.5519, accuracy=0.8134
+INFO:root:[TRAIN]epoch8: loss=0.3910, accuracy=0.8649, throughput=1909.0627
+INFO:root:[TEST]epoch8: loss=0.4901, accuracy=0.8320
+INFO:root:[TRAIN]epoch9: loss=0.3528, accuracy=0.8773, throughput=1909.8508
+INFO:root:[TEST]epoch9: loss=0.4707, accuracy=0.8427
+INFO:root:[TRAIN]epoch10: loss=0.3258, accuracy=0.8882, throughput=1908.9951
+INFO:root:[TEST]epoch10: loss=0.4137, accuracy=0.8601
+INFO:root:[TRAIN]epoch11: loss=0.2953, accuracy=0.8987, throughput=1911.8659
+INFO:root:[TEST]epoch11: loss=0.4294, accuracy=0.8604
+INFO:root:[TRAIN]epoch12: loss=0.2725, accuracy=0.9064, throughput=1913.3234
+INFO:root:[TEST]epoch12: loss=0.3865, accuracy=0.8753
+INFO:root:[TRAIN]epoch13: loss=0.2503, accuracy=0.9138, throughput=1912.0110
+INFO:root:[TEST]epoch13: loss=0.3844, accuracy=0.8733
+INFO:root:[TRAIN]epoch14: loss=0.2351, accuracy=0.9184, throughput=1913.0053
+INFO:root:[TEST]epoch14: loss=0.6488, accuracy=0.8251
