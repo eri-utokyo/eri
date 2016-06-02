@@ -26,6 +26,7 @@ train_x = np.load('data/train_x.npy')
 train_y = np.load('data/train_y.npy')
 test_x = np.load('data/test_x.npy')
 test_y = np.load('data/test_y.npy')
+print test_y
 
 BATCH_SIZE = 128
 NUM_TRAIN = train_x.shape[0]
