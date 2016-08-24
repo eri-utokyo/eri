@@ -13,13 +13,10 @@ from sklearn.decomposition import PCA
 
 search_band_size = False
 
-def gaussian(x, d):
-    return np.exp(-np.dot(x.T, x) / 2) / (2 * math.pi ** (d / 2))
-
-def kde(x, t, b):
+def kde(x, t, b=0.6):
     n, d = t.shape
-    sum_t = np.sum(np.array([gaussian((x - _t) / b, d) for _t in t]))
-    return sum_t / (n * b ** d)
+    _x = (x - t) / b
+    return np.sum(np.exp(_x[:, :, np.newaxis] * _x[:, :, np.newaxis] / -2) / (2 * np.pi ** (d / 2))) / (n * b ** d)
 
 mnist = fetch_mldata('MNIST original')
 mnist_X, mnist_y = shuffle(mnist.data, mnist.target.astype('int32'))
@@ -30,6 +27,7 @@ train_X, test_X, train_y, test_y = train_test_split(mnist_X, mnist_y, test_size=
 ids_x = np.array([train_y == i for i in range(10)])
 idx_y = np.array([test_y == i for i in range(10)])
 
+'''
 dim = 150
 pca = PCA(n_components=dim)
 pca.fit(train_X)
@@ -38,6 +36,7 @@ train_X = pca.transform(train_X)
 pca = PCA(n_components=dim)
 pca.fit(test_X)
 test_X = pca.transform(test_X)
+'''
 
 if search_band_size == True:
   for j in xrange(10):
@@ -57,6 +56,5 @@ if search_band_size == True:
       print sum(answers) / N, sum(bs) / N
 else:
   bs = [0.6 for _ in xrange(10)]
-  # TODO: Refactor
   ans = np.array([[kde(_x, train_X[ids_x[i]].astype('float64'), b) for i, b in zip(xrange(10), bs)] for _x in test_X])
   print accuracy_score(test_y, np.argmax(ans, axis=1))
